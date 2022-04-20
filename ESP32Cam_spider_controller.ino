@@ -270,12 +270,15 @@ void
 multi_servo_position(int servo_num1, int servo_angle1, int servo_num2, int servo_angle2, int servo_num3, int servo_angle3)
 {
   //speed 100-9999
+  servo_angle1 = map(servo_angle1, -max_servo_angle, max_servo_angle, -90, 90);
   servo_angle1 = map(servo_angle1, -90, 90, 500, 2500);
   servo_angle1 = constrain(servo_angle1, 500, 2500);
 
+  servo_angle2 = map(servo_angle2, -max_servo_angle, max_servo_angle, -90, 90);
   servo_angle2 = map(servo_angle2, -90, 90, 500, 2500);
   servo_angle2 = constrain(servo_angle2, 500, 2500);
 
+  servo_angle3 = map(servo_angle3, -max_servo_angle, max_servo_angle, -90, 90);
   servo_angle3 = map(-servo_angle3, -90, 90, 500, 2500);
   servo_angle3 = constrain(servo_angle3, 500, 2500);
 
@@ -288,7 +291,7 @@ multi_servo_position(int servo_num1, int servo_angle1, int servo_num2, int servo
 void
 servo_test()
 {
-  for (int i = 0; i <= 23; i++)\
+  for (int i = 0; i <= 23; i++)
   {
     servo_position(i, -90, 100);
     delay(1000);
@@ -318,17 +321,17 @@ specific_leg_relative_command(int leg_ID, int coxa_servo_angle, int femur_servo_
 
     //command group1
     case 1:
-      multi_servo_position(servo_coxa_1 , coxa_servo_angle, servo_femur_1 , femur_servo_angle , servo_tibia_1 , tibia_servo_angle);
+      multi_servo_position(servo_coxa_1 , -coxa_servo_angle, servo_femur_1 , -femur_servo_angle , servo_tibia_1 , -tibia_servo_angle);
       break;
     case 2:
-      multi_servo_position(servo_coxa_2 , -coxa_servo_angle, servo_femur_2 , -femur_servo_angle , servo_tibia_2 , -tibia_servo_angle);
+      multi_servo_position(servo_coxa_2 , coxa_servo_angle, servo_femur_2 , femur_servo_angle , servo_tibia_2 , tibia_servo_angle);
       break;
     case 3:
-      multi_servo_position(servo_coxa_3 , coxa_servo_angle, servo_femur_3 , femur_servo_angle , servo_tibia_3 , tibia_servo_angle);
+      multi_servo_position(servo_coxa_3 , -coxa_servo_angle, servo_femur_3 , -femur_servo_angle , servo_tibia_3 , -tibia_servo_angle);
       break;
     //command group 2
     case 4:
-      multi_servo_position(servo_coxa_4 , -coxa_servo_angle, -servo_femur_4 , femur_servo_angle , -servo_tibia_4 , tibia_servo_angle);
+      multi_servo_position(servo_coxa_4 , coxa_servo_angle, servo_femur_4 , femur_servo_angle , servo_tibia_4 , tibia_servo_angle);
       break;
     case 5:
       multi_servo_position(servo_coxa_5 , coxa_servo_angle, servo_femur_5 , femur_servo_angle , servo_tibia_5 , tibia_servo_angle);
@@ -352,15 +355,15 @@ leg_group_1_command (int coxa_servo_angle, int femur_servo_angle, int tibia_serv
 
   //  //coxa
 
-  multi_servo_position(servo_coxa_1 , coxa_servo_angle, servo_coxa_4 , -coxa_servo_angle, servo_coxa_5 , coxa_servo_angle);
+  multi_servo_position(servo_coxa_1 , -coxa_servo_angle, servo_coxa_4 , coxa_servo_angle, servo_coxa_5 , coxa_servo_angle);
 
   //  //femur
 
-  multi_servo_position(servo_femur_1 , femur_servo_angle, servo_femur_4 , -femur_servo_angle, servo_femur_5 , femur_servo_angle);
+  multi_servo_position(servo_femur_1 , -femur_servo_angle, servo_femur_4 , femur_servo_angle, servo_femur_5 , femur_servo_angle);
   //
   //  //tibia
 
-  multi_servo_position(servo_tibia_1 , tibia_servo_angle, servo_tibia_4 , -tibia_servo_angle, servo_tibia_5 , tibia_servo_angle);
+  multi_servo_position(servo_tibia_1 , -tibia_servo_angle, servo_tibia_4 , tibia_servo_angle, servo_tibia_5 , tibia_servo_angle);
 
 }
 
@@ -375,15 +378,15 @@ leg_group_2_command (int coxa_servo_angle, int femur_servo_angle, int tibia_serv
 
   //  //coxa
 
-  multi_servo_position(servo_coxa_2 , -coxa_servo_angle, servo_coxa_3 , coxa_servo_angle, servo_coxa_6 , -coxa_servo_angle);
+  multi_servo_position(servo_coxa_2 , coxa_servo_angle, servo_coxa_3 , -coxa_servo_angle, servo_coxa_6 , -coxa_servo_angle);
 
   //  //femur
 
-  multi_servo_position(servo_femur_2 , -femur_servo_angle, servo_femur_3 , femur_servo_angle, servo_femur_6 , -femur_servo_angle);
+  multi_servo_position(servo_femur_2 , femur_servo_angle, servo_femur_3 , -femur_servo_angle, servo_femur_6 , -femur_servo_angle);
 
   //  //tibia
 
-  multi_servo_position(servo_tibia_2 , -tibia_servo_angle, servo_tibia_3 , tibia_servo_angle, servo_tibia_6 , -tibia_servo_angle);
+  multi_servo_position(servo_tibia_2 , tibia_servo_angle, servo_tibia_3 , -tibia_servo_angle, servo_tibia_6 , -tibia_servo_angle);
 
 }
 
