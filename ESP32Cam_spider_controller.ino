@@ -321,23 +321,23 @@ specific_leg_relative_command(int leg_ID, int coxa_servo_angle, int femur_servo_
 
     //command group1
     case 1:
-      multi_servo_position(servo_coxa_1 , -coxa_servo_angle, servo_femur_1 , -femur_servo_angle , servo_tibia_1 , -tibia_servo_angle);
+      multi_servo_position(servo_coxa_1 , -coxa_servo_angle, servo_femur_1 , -femur_servo_angle , servo_tibia_1 , tibia_servo_angle);
       break;
     case 2:
-      multi_servo_position(servo_coxa_2 , coxa_servo_angle, servo_femur_2 , femur_servo_angle , servo_tibia_2 , tibia_servo_angle);
+      multi_servo_position(servo_coxa_2 , coxa_servo_angle, servo_femur_2 , femur_servo_angle , servo_tibia_2 , -tibia_servo_angle);
       break;
     case 3:
-      multi_servo_position(servo_coxa_3 , -coxa_servo_angle, servo_femur_3 , -femur_servo_angle , servo_tibia_3 , -tibia_servo_angle);
+      multi_servo_position(servo_coxa_3 , -coxa_servo_angle, servo_femur_3 , -femur_servo_angle , servo_tibia_3 , tibia_servo_angle);
       break;
     //command group 2
     case 4:
-      multi_servo_position(servo_coxa_4 , coxa_servo_angle, servo_femur_4 , femur_servo_angle , servo_tibia_4 , tibia_servo_angle);
+      multi_servo_position(servo_coxa_4 , coxa_servo_angle, servo_femur_4 , femur_servo_angle , servo_tibia_4 , -tibia_servo_angle);
       break;
     case 5:
-      multi_servo_position(servo_coxa_5 , coxa_servo_angle, servo_femur_5 , femur_servo_angle , servo_tibia_5 , tibia_servo_angle);
+      multi_servo_position(servo_coxa_5 , -coxa_servo_angle, servo_femur_5 , -femur_servo_angle , servo_tibia_5 , tibia_servo_angle);
       break;
     case 6:
-      multi_servo_position(servo_coxa_6 , -coxa_servo_angle, servo_femur_6 , -femur_servo_angle , servo_tibia_6 , -tibia_servo_angle);
+      multi_servo_position(servo_coxa_6 , coxa_servo_angle, servo_femur_6 , femur_servo_angle , servo_tibia_6 , -tibia_servo_angle);
       break;
     default:
       break;
@@ -416,24 +416,24 @@ walk_forward(int reference_time_millis, int servo_speed)
   if (current_movement_cycle_elapsed < movement_cycle_period / action_group_count)
   {
     //ACTION GROUP 1
-    leg_group_2_command (-45, -45, -85); //leg group 2 forward and up
-    leg_group_1_command (0, -5, -85);  //leg group 1 back to default pos
+    leg_group_2_command (45, 85, 85); //leg group 2 forward and up
+    leg_group_1_command (0, 5, 85);  //leg group 1 back to default pos
   }
   else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 1 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 2)
   {
     //ACTION GROUP 2
-    leg_group_2_command (-45, -5, -85); //leg group 2 down
+    leg_group_2_command (45, 5, 85); //leg group 2 down
   }
   else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 2 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 3)
   {
     //ACTION GROUP 3
-    leg_group_2_command (0, -5, -85);  //leg group 2 back to default pos
-    leg_group_1_command (-45, -45, -85); // leg group 1 fowrd and up
+    leg_group_2_command (0, 5, 85);  //leg group 2 back to default pos
+    leg_group_1_command (45, 85, 85); // leg group 1 fowrd and up
   }
   else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 3 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 4)
   {
     //ACTION GROUP 4
-    leg_group_1_command (-45, -5, -85); //leg group 1 down
+    leg_group_1_command (45, 5, 85); //leg group 1 down
   }
 }
 
@@ -455,7 +455,7 @@ walk_backward(int reference_time_millis, int servo_speed)
   if (current_movement_cycle_elapsed < movement_cycle_period / action_group_count)
   {
     //ACTION GROUP 1
-    leg_group_2_command (-45, 45, 85); //leg group 2 forward and up
+    leg_group_2_command (-45, 85, 85); //leg group 2 forward and up
     leg_group_1_command (0, 5, 85);  //leg group 1 back to default pos
   }
   else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 1 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 2)
@@ -467,7 +467,7 @@ walk_backward(int reference_time_millis, int servo_speed)
   {
     //ACTION GROUP 3
     leg_group_2_command (0, 5, 85);  //leg group 2 back to default pos
-    leg_group_1_command (-45, 45, 85); // leg group 1 fowrd and up
+    leg_group_1_command (-45, 85, 85); // leg group 1 fowrd and up
   }
   else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 3 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 4)
   {
@@ -558,6 +558,7 @@ rotate_left(int reference_time_millis, int servo_speed)
 
   }
 
+  
 }
 
 void
@@ -640,6 +641,9 @@ rotate_right(int reference_time_millis, int servo_speed)
     specific_leg_relative_command(5, -60, default_standing_femur_angle, default_standing_tibia_angle);
 
   }
+
+
+
 }
 
 void
