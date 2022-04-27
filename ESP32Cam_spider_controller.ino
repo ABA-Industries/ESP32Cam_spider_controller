@@ -110,6 +110,8 @@ unsigned long time_interval_old = 0;
 String servo_serial_command_buffer = "";
 String servo_serial_command_buffer_old = "";
 
+int added_time_to_movement_cycle_min = 500;
+
 bool calibration_tracker = false;
 
 
@@ -130,15 +132,15 @@ WebServer server(80);
 
 TaskHandle_t Task1;
 
-void
-send_udp_reply(char reply_buffer[])
-{
-  Udp.beginPacket(WiFi.localIP(), localUdpPort);
-
-  Udp.print(reply_buffer);
-
-  Udp.endPacket();
-}
+//void
+//send_udp_reply(char reply_buffer[])
+//{
+//  Udp.beginPacket(WiFi.localIP(), localUdpPort);
+//
+//  Udp.print(reply_buffer);
+//
+//  Udp.endPacket();
+//}
 
 ///////////////////////////////////////////////////////////////
 ////ESP32cam SECTION/////////////////////////////////////////////////////////////
@@ -405,9 +407,14 @@ walk_forward(int reference_time_millis, int servo_speed)
   //total seperate actions preformed
   int action_group_count = 4;
 
+  //add time to movement cycle to allow for movement speed slower than expected (respects a min value)
+  int added_time_to_movement_cycle = servo_speed * 2;
+  if (added_time_to_movement_cycle < added_time_to_movement_cycle_min)
+  {
+    added_time_to_movement_cycle = added_time_to_movement_cycle_min;
+  }
   //how long it take to repeat the action (ms)
-  //int movement_cycle_period = 3000;
-  int movement_cycle_period = servo_speed * action_group_count + servo_speed * 2;
+  int movement_cycle_period = servo_speed * action_group_count + added_time_to_movement_cycle;
 
   //how many ms have elapsed during the current movemnt cycle
   int current_movement_cycle_elapsed = (millis() - reference_time_millis) % movement_cycle_period;
@@ -444,9 +451,14 @@ walk_backward(int reference_time_millis, int servo_speed)
   //total seperate actions preformed
   int action_group_count = 4;
 
+  //add time to movement cycle to allow for movement speed slower than expected (respects a min value)
+  int added_time_to_movement_cycle = servo_speed * 2;
+  if (added_time_to_movement_cycle < added_time_to_movement_cycle_min)
+  {
+    added_time_to_movement_cycle = added_time_to_movement_cycle_min;
+  }
   //how long it take to repeat the action (ms)
-  //int movement_cycle_period = 3000;
-  int movement_cycle_period = servo_speed * action_group_count + servo_speed * 2;
+  int movement_cycle_period = servo_speed * action_group_count + added_time_to_movement_cycle;
 
   //how many ms have elapsed during the current movemnt cycle
   int current_movement_cycle_elapsed = (millis() - reference_time_millis) % movement_cycle_period;
@@ -487,9 +499,14 @@ rotate_left(int reference_time_millis, int servo_speed)
   //total seperate actions preformed
   int action_group_count = 4;
 
+  //add time to movement cycle to allow for movement speed slower than expected (respects a min value)
+  int added_time_to_movement_cycle = servo_speed * 2;
+  if (added_time_to_movement_cycle < added_time_to_movement_cycle_min)
+  {
+    added_time_to_movement_cycle = added_time_to_movement_cycle_min;
+  }
   //how long it take to repeat the action (ms)
-  //int movement_cycle_period = 3000;
-  int movement_cycle_period = servo_speed * action_group_count + servo_speed * 2;
+  int movement_cycle_period = servo_speed * action_group_count + added_time_to_movement_cycle;
 
   //how many ms have elapsed during the current movemnt cycle
   int current_movement_cycle_elapsed = (millis() - reference_time_millis) % movement_cycle_period;
@@ -558,7 +575,7 @@ rotate_left(int reference_time_millis, int servo_speed)
 
   }
 
-  
+
 }
 
 void
@@ -571,9 +588,14 @@ rotate_right(int reference_time_millis, int servo_speed)
   //total seperate actions preformed
   int action_group_count = 4;
 
+  //add time to movement cycle to allow for movement speed slower than expected (respects a min value)
+  int added_time_to_movement_cycle = servo_speed * 2;
+  if (added_time_to_movement_cycle < added_time_to_movement_cycle_min)
+  {
+    added_time_to_movement_cycle = added_time_to_movement_cycle_min;
+  }
   //how long it take to repeat the action (ms)
-  //int movement_cycle_period = 3000;
-  int movement_cycle_period = servo_speed * action_group_count + servo_speed * 2;
+  int movement_cycle_period = servo_speed * action_group_count + added_time_to_movement_cycle;
 
   //how many ms have elapsed during the current movemnt cycle
   int current_movement_cycle_elapsed = (millis() - reference_time_millis) % movement_cycle_period;
@@ -655,11 +677,291 @@ strafe_right(int reference_time_millis, int servo_speed)
   //int default_standing_tibia_angle = 85;
 
   //total seperate actions preformed
-  int action_group_count = 5;
+  int action_group_count = 6;
 
+  //add time to movement cycle to allow for movement speed slower than expected (respects a min value)
+  int added_time_to_movement_cycle = servo_speed * 2;
+  if (added_time_to_movement_cycle < added_time_to_movement_cycle_min)
+  {
+    added_time_to_movement_cycle = added_time_to_movement_cycle_min;
+  }
   //how long it take to repeat the action (ms)
-  //int movement_cycle_period = 3000;
-  int movement_cycle_period = servo_speed * action_group_count + servo_speed * 2;
+  int movement_cycle_period = servo_speed * action_group_count + added_time_to_movement_cycle;
+
+  //how many ms have elapsed during the current movemnt cycle
+  int current_movement_cycle_elapsed = (millis() - reference_time_millis) % movement_cycle_period;
+
+
+  //determine which action group to do based on how much time has elapsed in the period of the movement cycle
+  if (current_movement_cycle_elapsed < movement_cycle_period / action_group_count)
+  {
+    //ACTION GROUP 1
+
+    specific_leg_relative_command(1, -45, 45, 70);
+
+    specific_leg_relative_command(2, -45, -10, 110);
+
+    specific_leg_relative_command(3, 0, -55, 10);
+
+    specific_leg_relative_command(4, 0, 45, 90);
+
+    specific_leg_relative_command(5, 45, 45, 70);
+
+    specific_leg_relative_command(6, 45, -10, 110);
+
+  }
+  else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 1 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 2)
+  {
+    //ACTION GROUP 2
+
+    specific_leg_relative_command(1, -45, 45, 90);
+
+    specific_leg_relative_command(2, -45, -10, 55);
+
+    specific_leg_relative_command(3, 0, -10, 110);
+
+    specific_leg_relative_command(4, 0, 45, 90);
+
+    specific_leg_relative_command(5, 45, 45, 90);
+
+    specific_leg_relative_command(6, 45, -10, 55);
+
+
+
+  }
+  else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 2 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 3)
+  {
+    //ACTION GROUP 3
+
+    specific_leg_relative_command(1, -45, -55, 10);
+
+    specific_leg_relative_command(2, -45, -10, 55);
+
+    specific_leg_relative_command(3, 0, -10, 130);
+
+    specific_leg_relative_command(4, 0, -10, 110);
+
+    specific_leg_relative_command(5, 45, -55, 10);
+
+    specific_leg_relative_command(6, 45, -10, 55);
+
+
+
+  }
+  else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 3 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 4)
+  {
+    //ACTION GROUP 4
+
+
+    specific_leg_relative_command(1, -45, -55, 10);
+
+    specific_leg_relative_command(2, -45, 70, 110);
+
+    specific_leg_relative_command(3, 0, 45, 70);
+
+    specific_leg_relative_command(4, 0, -10, 70);
+
+    specific_leg_relative_command(5, 45, -55, 10);
+
+    specific_leg_relative_command(6, 45, 70, 110);
+
+  }
+
+  else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 4 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 5)
+  {
+    //ACTION GROUP 5
+
+    specific_leg_relative_command(1, -45, -10, 110);
+
+    specific_leg_relative_command(2, -45, 70, 110);
+
+    specific_leg_relative_command(3, 0, 45, 70);
+
+    specific_leg_relative_command(4, 0, -10, 70);
+
+    specific_leg_relative_command(5, 45, -10, 110);
+
+    specific_leg_relative_command(6, 45, 70, 110);
+
+  }
+
+  else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 5 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 6)
+  {
+    //ACTION GROUP 6
+
+    specific_leg_relative_command(1, -45, -10, 110);
+
+    specific_leg_relative_command(2, -45, -10, 110);
+
+    specific_leg_relative_command(3, 0, -55, 10);
+
+    specific_leg_relative_command(4, 0, -10, 70);
+
+    specific_leg_relative_command(5, 45, -10, 110);
+
+    specific_leg_relative_command(6, 45, -10, 110);
+
+  }
+
+}
+
+
+void
+strafe_left(int reference_time_millis, int servo_speed)
+{
+
+  //  int default_standing_coxa_angle = 0;
+  //int default_standing_femur_angle = 5;
+  //int default_standing_tibia_angle = 85;
+
+  //total seperate actions preformed
+  int action_group_count = 6;
+
+  //add time to movement cycle to allow for movement speed slower than expected (respects a min value)
+  int added_time_to_movement_cycle = servo_speed * 2;
+  if (added_time_to_movement_cycle < added_time_to_movement_cycle_min)
+  {
+    added_time_to_movement_cycle = added_time_to_movement_cycle_min;
+  }
+  //how long it take to repeat the action (ms)
+  int movement_cycle_period = servo_speed * action_group_count + added_time_to_movement_cycle;
+
+  //how many ms have elapsed during the current movemnt cycle
+  int current_movement_cycle_elapsed = (millis() - reference_time_millis) % movement_cycle_period;
+
+
+  //determine which action group to do based on how much time has elapsed in the period of the movement cycle
+  if (current_movement_cycle_elapsed < movement_cycle_period / action_group_count)
+  {
+    //ACTION GROUP 1
+
+    specific_leg_relative_command(2, -45, 45, 70);
+
+    specific_leg_relative_command(1, -45, -10, 110);
+
+    specific_leg_relative_command(4, 0, -55, 10);
+
+    specific_leg_relative_command(3, 0, 45, 90);
+
+    specific_leg_relative_command(6, 45, 45, 70);
+
+    specific_leg_relative_command(5, 45, -10, 110);
+
+  }
+  else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 1 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 2)
+  {
+    //ACTION GROUP 2
+
+    specific_leg_relative_command(2, -45, 45, 90);
+
+    specific_leg_relative_command(1, -45, -10, 55);
+
+    specific_leg_relative_command(4, 0, -10, 110);
+
+    specific_leg_relative_command(3, 0, 45, 90);
+
+    specific_leg_relative_command(6, 45, 45, 90);
+
+    specific_leg_relative_command(5, 45, -10, 55);
+
+
+
+  }
+  else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 2 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 3)
+  {
+    //ACTION GROUP 3
+
+    specific_leg_relative_command(2, -45, -55, 10);
+
+    specific_leg_relative_command(1, -45, -10, 55);
+
+    specific_leg_relative_command(4, 0, -10, 130);
+
+    specific_leg_relative_command(3, 0, -10, 110);
+
+    specific_leg_relative_command(6, 45, -55, 10);
+
+    specific_leg_relative_command(5, 45, -10, 55);
+
+
+
+  }
+  else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 3 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 4)
+  {
+    //ACTION GROUP 4
+
+
+    specific_leg_relative_command(2, -45, -55, 10);
+
+    specific_leg_relative_command(1, -45, 70, 110);
+
+    specific_leg_relative_command(4, 0, 45, 70);
+
+    specific_leg_relative_command(3, 0, -10, 70);
+
+    specific_leg_relative_command(6, 45, -55, 10);
+
+    specific_leg_relative_command(5, 45, 70, 110);
+
+  }
+
+  else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 4 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 5)
+  {
+    //ACTION GROUP 5
+
+    specific_leg_relative_command(2, -45, -10, 110);
+
+    specific_leg_relative_command(1, -45, 70, 110);
+
+    specific_leg_relative_command(4, 0, 45, 70);
+
+    specific_leg_relative_command(3, 0, -10, 70);
+
+    specific_leg_relative_command(6, 45, -10, 110);
+
+    specific_leg_relative_command(5, 45, 70, 110);
+
+  }
+
+  else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 5 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 6)
+  {
+    //ACTION GROUP 6
+
+    specific_leg_relative_command(2, -45, -10, 110);
+
+    specific_leg_relative_command(1, -45, -10, 110);
+
+    specific_leg_relative_command(4, 0, -55, 10);
+
+    specific_leg_relative_command(3, 0, -10, 70);
+
+    specific_leg_relative_command(6, 45, -10, 110);
+
+    specific_leg_relative_command(5, 45, -10, 110);
+
+  }
+
+}
+
+
+void
+greeting(int reference_time_millis, int servo_speed)
+{
+  //  int default_standing_coxa_angle = 0;
+  //int default_standing_femur_angle = 5;
+  //int default_standing_tibia_angle = 85;
+
+  //total seperate actions preformed
+  int action_group_count = 2;
+
+  //add time to movement cycle to allow for movement speed slower than expected (respects a min value)
+  int added_time_to_movement_cycle = servo_speed * 2;
+  if (added_time_to_movement_cycle < added_time_to_movement_cycle_min)
+  {
+    added_time_to_movement_cycle = added_time_to_movement_cycle_min;
+  }
+  //how long it take to repeat the action (ms)
+  int movement_cycle_period = servo_speed * action_group_count + added_time_to_movement_cycle;
 
   //how many ms have elapsed during the current movemnt cycle
   int current_movement_cycle_elapsed = (millis() - reference_time_millis) % movement_cycle_period;
@@ -668,18 +970,20 @@ strafe_right(int reference_time_millis, int servo_speed)
   if (current_movement_cycle_elapsed < movement_cycle_period / action_group_count)
   {
     //ACTION GROUP 1
+    //leg_group_2_command (-45, -45, 85); //leg group 2 forward and up
+    //leg_group_1_command (0, -5, 85);  //leg group 1 back to default pos
 
-    specific_leg_relative_command(1, -45, 45, default_standing_tibia_angle);
+    specific_leg_relative_command(1, -45, default_standing_femur_angle, -90);
 
-    specific_leg_relative_command(2, -45, default_standing_femur_angle, default_standing_tibia_angle);
+    specific_leg_relative_command(2,  default_standing_coxa_angle, default_standing_femur_angle, default_standing_tibia_angle);
 
-    specific_leg_relative_command(3, default_standing_coxa_angle, default_standing_femur_angle, default_standing_tibia_angle);
+    specific_leg_relative_command(3,  default_standing_coxa_angle, default_standing_femur_angle, default_standing_tibia_angle);
 
-    specific_leg_relative_command(4, default_standing_coxa_angle, 45, default_standing_tibia_angle);
+    specific_leg_relative_command(4, default_standing_coxa_angle, default_standing_femur_angle, default_standing_tibia_angle);
 
-    specific_leg_relative_command(5, 45, 45, default_standing_tibia_angle);
+    specific_leg_relative_command(5, default_standing_coxa_angle, default_standing_femur_angle, default_standing_tibia_angle);
 
-    specific_leg_relative_command(6, 45, default_standing_femur_angle, default_standing_tibia_angle);
+    specific_leg_relative_command(6,  default_standing_coxa_angle, default_standing_femur_angle, default_standing_tibia_angle);
 
 
   }
@@ -687,59 +991,73 @@ strafe_right(int reference_time_millis, int servo_speed)
   {
     //ACTION GROUP 2
 
-    specific_leg_relative_command(1, -45, -45, 0);
-
-    specific_leg_relative_command(2, -45, 45, default_standing_tibia_angle);
-
-    specific_leg_relative_command(3, default_standing_coxa_angle, 45, default_standing_tibia_angle);
-
-    specific_leg_relative_command(4, default_standing_coxa_angle, -25, 89);
-
-    specific_leg_relative_command(5, 45, -45, 0);
-
-    specific_leg_relative_command(6, 45, 45, default_standing_tibia_angle);
-
-  }
-  else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 2 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 3)
-  {
-    //ACTION GROUP 3
-
-    specific_leg_relative_command(1, -45, -45, default_standing_tibia_angle);
-
-    specific_leg_relative_command(4, default_standing_coxa_angle, -45, default_standing_tibia_angle);
-
-    specific_leg_relative_command(5, 45, -45, default_standing_tibia_angle);
-
-  }
-  else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 3 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 4)
-  {
-    //ACTION GROUP 4
-
-    specific_leg_relative_command(1, -45, 45, default_standing_tibia_angle);
-
-    specific_leg_relative_command(2, -45, -25, 89);
-
-    specific_leg_relative_command(3, default_standing_coxa_angle, -45, 0);
-
-    specific_leg_relative_command(4, default_standing_coxa_angle, 45, default_standing_tibia_angle);
-
-    specific_leg_relative_command(5, 45, 45, default_standing_tibia_angle);
-
-    specific_leg_relative_command(6, 45, -25, 89);
-
-  }
-  else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 4 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 5)
-  {
-    //ACTION GROUP 5
-
-    specific_leg_relative_command(2, -45, 45, default_standing_tibia_angle);
-
-    specific_leg_relative_command(3, default_standing_coxa_angle, 45, default_standing_tibia_angle);
-
-    specific_leg_relative_command(6, 45, 45, default_standing_tibia_angle);
+    specific_leg_relative_command(1, -45, default_standing_femur_angle, -60);
 
   }
 }
+
+void
+dance(int reference_time_millis, int servo_speed)
+{
+  //  int default_standing_coxa_angle = 0;
+  //int default_standing_femur_angle = 5;
+  //int default_standing_tibia_angle = 85;
+
+  //total seperate actions preformed
+  int action_group_count = 2;
+
+  //add time to movement cycle to allow for movement speed slower than expected (respects a min value)
+  int added_time_to_movement_cycle = servo_speed * 2;
+  if (added_time_to_movement_cycle < added_time_to_movement_cycle_min)
+  {
+    added_time_to_movement_cycle = added_time_to_movement_cycle_min;
+  }
+  //how long it take to repeat the action (ms)
+  int movement_cycle_period = servo_speed * action_group_count + added_time_to_movement_cycle;
+
+  //how many ms have elapsed during the current movemnt cycle
+  int current_movement_cycle_elapsed = (millis() - reference_time_millis) % movement_cycle_period;
+
+  //determine which action group to do based on how much time has elapsed in the period of the movement cycle
+  if (current_movement_cycle_elapsed < movement_cycle_period / action_group_count)
+  {
+    //ACTION GROUP 1
+    //leg_group_2_command (-45, -45, 85); //leg group 2 forward and up
+    //leg_group_1_command (0, -5, 85);  //leg group 1 back to default pos
+
+    //    specific_leg_relative_command(1, 0, 0, 90);
+    //
+    //    specific_leg_relative_command(2,
+    //
+    //                                  specific_leg_relative_command(3,
+    //
+    //                                      specific_leg_relative_command(4,
+    //
+    //                                          specific_leg_relative_command(5,
+    //
+    //                                              specific_leg_relative_command(6,
+
+
+  }
+  else if (current_movement_cycle_elapsed > (movement_cycle_period / action_group_count) * 1 && current_movement_cycle_elapsed < (movement_cycle_period / action_group_count) * 2)
+  {
+    //ACTION GROUP 2
+    //
+    //    specific_leg_relative_command(1,
+    //
+    //                                  specific_leg_relative_command(2,
+    //
+    //                                      specific_leg_relative_command(3,
+    //
+    //                                          specific_leg_relative_command(4,
+    //
+    //                                              specific_leg_relative_command(5,
+    //
+    //                                                  specific_leg_relative_command(6,
+  }
+}
+
+
 
 void
 update_servo_speed_int(int speed_int)
@@ -750,6 +1068,20 @@ update_servo_speed_int(int speed_int)
   servo_speed = map(speed_int, 1, 9, min_servo_speed, max_servo_speed);
   servo_speed_old = servo_speed;
 }
+
+void
+movement_state_transition(char old_command, char new_command)
+{
+  int transition_delay = 150;
+
+  if (old_command != new_command)
+  {
+    brake();
+    delay(transition_delay);
+    servo_serial_command_buffer = "";
+  }
+}
+
 
 void
 setup()
@@ -861,7 +1193,7 @@ loop() {
     {
       digitalWrite(4, !digitalRead(4));
       char message[] = "Headlight Toggled";
-      send_udp_reply(message);
+      ////send_udp_reply(message);
       //Serial.print("toggle light");
       incomingPacket[0] = old_Packet[0];
     }
@@ -873,7 +1205,7 @@ loop() {
         leg_group_1_command (0, 0, 0);
         leg_group_2_command (0, 0, 0);
         char message[] = "Calibration 0 degrees";
-        send_udp_reply(message);
+        ////send_udp_reply(message);
         //Serial.print("0 degrees calibration");
         calibration_tracker = true;
       }
@@ -882,7 +1214,7 @@ loop() {
         leg_group_1_command (-45, 45, 45);
         leg_group_2_command (-45, 45, 45);
         char message[] = "Calibration 45 degrees";
-        send_udp_reply(message);
+        ////send_udp_reply(message);
         calibration_tracker = false;
         //Serial.print("80 degrees calibration");
       }
@@ -895,7 +1227,7 @@ loop() {
     {
       update_servo_speed_int(1);
       char message[] = "Servo Speed 1";
-      send_udp_reply(message);
+      ////send_udp_reply(message);
       incomingPacket[0] = old_Packet[0];
     }
 
@@ -903,7 +1235,7 @@ loop() {
     {
       update_servo_speed_int(2);
       char message[] = "Servo Speed 2";
-      send_udp_reply(message);
+      ////send_udp_reply(message);
       incomingPacket[0] = old_Packet[0];
     }
 
@@ -911,7 +1243,7 @@ loop() {
     {
       update_servo_speed_int(3);
       char message[] = "Servo Speed 3";
-      send_udp_reply(message);
+      ////send_udp_reply(message);
       incomingPacket[0] = old_Packet[0];
     }
 
@@ -919,7 +1251,7 @@ loop() {
     {
       update_servo_speed_int(4);
       char message[] = "Servo Speed 4";
-      send_udp_reply(message);
+      ////send_udp_reply(message);
       incomingPacket[0] = old_Packet[0];
     }
 
@@ -927,7 +1259,7 @@ loop() {
     {
       update_servo_speed_int(5);
       char message[] = "Servo Speed 5";
-      send_udp_reply(message);
+      ////send_udp_reply(message);
       incomingPacket[0] = old_Packet[0];
     }
 
@@ -935,7 +1267,7 @@ loop() {
     {
       update_servo_speed_int(6);
       char message[] = "Servo Speed 6";
-      send_udp_reply(message);
+      //send_udp_reply(message);
       incomingPacket[0] = old_Packet[0];
     }
 
@@ -943,7 +1275,7 @@ loop() {
     {
       update_servo_speed_int(7);
       char message[] = "Servo Speed 7";
-      send_udp_reply(message);
+      //send_udp_reply(message);
       incomingPacket[0] = old_Packet[0];
     }
 
@@ -951,7 +1283,7 @@ loop() {
     {
       update_servo_speed_int(8);
       char message[] = "Servo Speed 8";
-      send_udp_reply(message);
+      //send_udp_reply(message);
       incomingPacket[0] = old_Packet[0];
     }
 
@@ -959,7 +1291,7 @@ loop() {
     {
       update_servo_speed_int(9);
       char message[] = "Servo Speed 9";
-      send_udp_reply(message);
+      //send_udp_reply(message);
       incomingPacket[0] = old_Packet[0];
     }
 
@@ -971,50 +1303,82 @@ loop() {
   {
     brake();
     char message[] = "Stop Spiderbot";
-    send_udp_reply(message);
+    //send_udp_reply(message);
   }
 
   if (incomingPacket[0] == 'W')
   {
+    movement_state_transition(old_Packet[0], incomingPacket[0]);
+
     walk_forward(milli_time_reference, servo_speed);
-    char message[] = "Forward";
-    send_udp_reply(message);
+    //    char message[] = "Forward";
+    //    //send_udp_reply(message);
   }
 
   if (incomingPacket[0] == 'X')
   {
+    movement_state_transition(old_Packet[0], incomingPacket[0]);
+
     walk_backward(milli_time_reference, servo_speed);
     char message[] = "Backward";
-    send_udp_reply(message);
+    //send_udp_reply(message);
   }
 
   if (incomingPacket[0] == 'A')
   {
-    //strafe_left(milli_time_reference, servo_speed);
+    movement_state_transition(old_Packet[0], incomingPacket[0]);
+
+    strafe_left(milli_time_reference, servo_speed);
     char message[] = "Strafe Left";
-    send_udp_reply(message);
+    //send_udp_reply(message);
   }
 
   if (incomingPacket[0] == 'D')
   {
+    movement_state_transition(old_Packet[0], incomingPacket[0]);
+
     strafe_right(milli_time_reference, servo_speed);
     char message[] = "Strafe Right";
-    send_udp_reply(message);
+    //send_udp_reply(message);
   }
 
   if (incomingPacket[0] == 'Q')
   {
+    movement_state_transition(old_Packet[0], incomingPacket[0]);
+
     rotate_left(milli_time_reference, servo_speed);
     char message[] = "Rotate Left";
-    send_udp_reply(message);
+    //send_udp_reply(message);
   }
 
   if (incomingPacket[0] == 'E')
   {
+    movement_state_transition(old_Packet[0], incomingPacket[0]);
+
     rotate_right(milli_time_reference, servo_speed);
     char message[] = "Rotate Right";
-    send_udp_reply(message);
+    //send_udp_reply(message);
   }
+
+  if (incomingPacket[0] == 'H')
+  {
+    movement_state_transition(old_Packet[0], incomingPacket[0]);
+
+    greeting(milli_time_reference, servo_speed);
+    char message[] = "Rotate Right";
+    //send_udp_reply(message);
+  }
+
+  if (incomingPacket[0] == 'X')
+  {
+    movement_state_transition(old_Packet[0], incomingPacket[0]);
+
+    dance(milli_time_reference, servo_speed);
+    char message[] = "Rotate Right";
+    //send_udp_reply(message);
+  }
+
+
 
 
   //send the final serial command string appended with servo speed
